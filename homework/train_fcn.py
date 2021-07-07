@@ -27,8 +27,8 @@ def train(args):
     if args.continue_training:
         model.load_state_dict(torch.load(path.join(path.dirname(path.abspath(__file__)), 'fcn.th')))
 
-    # optimizer = torch.optim.SGD(model.parameters(), lr=args.learning_rate, momentum=0.9, weight_decay=1e-3)
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate, weight_decay=1e-5)
+    # optimizer = torch.optim.SGD(model.parameters(), lr=args.learning_rate, momentum=0.9, weight_decay=1e-4)
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate, weight_decay=1e-4)
     w = torch.as_tensor(DENSE_CLASS_DISTRIBUTION)**(-args.gamma)
     loss = torch.nn.CrossEntropyLoss(weight=w / w.mean()).to(device)
 
@@ -101,7 +101,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--log_dir')
     # Put custom arguments here
-    parser.add_argument('-n', '--num_epoch', type=int, default=20)
+    parser.add_argument('-n', '--num_epoch', type=int, default=10)
     parser.add_argument('-lr', '--learning_rate', type=float, default=1e-3)
     parser.add_argument('-g', '--gamma', type=float, default=0, help="class dependent weight for cross entropy")
     parser.add_argument('-c', '--continue_training', action='store_true')
