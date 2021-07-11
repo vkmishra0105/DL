@@ -1,4 +1,3 @@
-
 from .models import CNNClassifier, save_model
 from .utils import accuracy, load_data
 import torch
@@ -79,7 +78,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--log_dir')
     # Put custom arguments here
-    parser.add_argument('-n', '--num_epoch', type=int, default=30)
+    parser.add_argument('-n', '--num_epoch', type=int, default=2)
     parser.add_argument('-lr', '--learning_rate', type=float, default=1e-3)
     parser.add_argument('-c', '--continue_training', action='store_true')
     parser.add_argument('-b', '--batch_size', type=int, default=128)
