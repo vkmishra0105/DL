@@ -5,22 +5,20 @@ import numpy as py
 class CNNClassifier(torch.nn.Module):
     class Block(torch.nn.Module):
         def __init__(self, n_input, n_output, kernel_size=3, stride=1):
-            super().__init__()
-            self.net = torch.nn.Sequential(
-                torch.nn.Conv2d(n_input, n_output, kernel_size=kernel_size, padding=kernel_size // 2,
-                                stride=stride, bias=False),
-                #           torch.nn.Conv2d(n_output, n_output, kernel_size=kernel_size, padding=kernel_size // 2, bias=False),
-                torch.nn.BatchNorm2d(n_output),
-                torch.nn.ReLU(),
-                torch.nn.MaxPool2d(3,2,1),
-                torch.nn.Conv2d(n_output, n_output, kernel_size=kernel_size, padding=kernel_size // 2, bias=False),
-
-                #           torch.nn.BatchNorm2d(n_output),
-                #
-                #          torch.nn.BatchNorm2d(n_output),
-                #           torch.nn.Conv2d(n_input, n_output, kernel_size=1, stride=stride)
+            super().__init__() 
+            self.net=torch.nn.Sequential(
+            torch.nn.Conv2d(n_input, n_output, kernel_size=kernel_size, padding=kernel_size // 2,
+                                      stride=stride, bias=False), 
+ #           torch.nn.Conv2d(n_output, n_output, kernel_size=kernel_size, padding=kernel_size // 2, bias=False),
+            torch.nn.BatchNorm2d(n_output),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(n_output, n_output, kernel_size=kernel_size, padding=kernel_size // 2, bias=False),
+           
+ #           torch.nn.BatchNorm2d(n_output),
+ #           
+  #          torch.nn.BatchNorm2d(n_output),
+ #           torch.nn.Conv2d(n_input, n_output, kernel_size=1, stride=stride)
             )
-
         def forward(self, x):
             return (self.net(x))
 
@@ -38,21 +36,13 @@ class CNNClassifier(torch.nn.Module):
         self.classifier = torch.nn.Linear(c, n_output_channels)
 
     def forward(self, x):
-        z = self.network(
-            (x - self.input_mean[None, :, None, None].to(x.device)) / self.input_std[None, :, None, None].to(x.device))
+        z = self.network((x - self.input_mean[None, :, None, None].to(x.device)) / self.input_std[None, :, None, None].to(x.device))
         return self.classifier(z.mean(dim=[2, 3]))
 
 class FCN(torch.nn.Module):
     def __init__(self):
         super().__init__()
-        """
-        Your code here.
-        Hint: The FCN can be a bit smaller the the CNNClassifier since you need to run it at a higher resolution
-        Hint: Use up-convolutions
-        Hint: Use skip connections
-        Hint: Use residual connections
-        Hint: Always pad by kernel_size / 2, use an odd kernel_size
-        """
+        
         self.net1 = torch.nn.Sequential(
           torch.nn.Conv2d(3, 32, kernel_size=3, padding = 2),
           torch.nn.BatchNorm2d(32),
@@ -146,6 +136,7 @@ model_factory = {
     'fcn': FCN,
 }
 
+
 def save_model(model):
     from torch import save
     from os import path
@@ -153,6 +144,7 @@ def save_model(model):
         if isinstance(model, m):
             return save(model.state_dict(), path.join(path.dirname(path.abspath(__file__)), '%s.th' % n))
     raise ValueError("model type '%s' not supported!" % str(type(model)))
+
 
 def load_model(model):
     from torch import load
