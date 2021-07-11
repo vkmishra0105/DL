@@ -109,5 +109,3 @@ class ToTensor(object):
     def __call__(self, image, label):
         return F.to_tensor(image), label_to_tensor(label)
 
-
-
