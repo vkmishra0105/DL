@@ -11,7 +11,6 @@ DENSE_LABEL_NAMES = ['background', 'kart', 'track', 'bomb/projectile', 'pickup/n
 # Distribution of classes on dense training set (background and track dominate (96%)
 DENSE_CLASS_DISTRIBUTION = [0.52683655, 0.02929112, 0.4352989, 0.0044619, 0.00411153]
 
-
 class SuperTuxDataset(Dataset):
     def __init__(self, dataset_path, transform=transforms.ToTensor()):
         """
@@ -49,7 +48,6 @@ class SuperTuxDataset(Dataset):
         img, lbl = self.data[idx]
         return self.transform(img), lbl
 
-
 class DenseSuperTuxDataset(Dataset):
     def __init__(self, dataset_path, transform=dense_transforms.ToTensor()):
         from glob import glob
@@ -70,20 +68,16 @@ class DenseSuperTuxDataset(Dataset):
             im, lbl = self.transform(im, lbl)
         return im, lbl
 
-
 def load_data(dataset_path, num_workers=0, batch_size=128, **kwargs):
     dataset = SuperTuxDataset(dataset_path, **kwargs)
     return DataLoader(dataset, num_workers=num_workers, batch_size=batch_size, shuffle=True, drop_last=True)
-
 
 def load_dense_data(dataset_path, num_workers=0, batch_size=32, **kwargs):
     dataset = DenseSuperTuxDataset(dataset_path, **kwargs)
     return DataLoader(dataset, num_workers=num_workers, batch_size=batch_size, shuffle=True, drop_last=True)
 
-
 def _one_hot(x, n):
     return (x.view(-1, 1) == torch.arange(n, dtype=x.dtype, device=x.device)).int()
-
 
 class ConfusionMatrix(object):
     def _make(self, preds, labels):
@@ -133,7 +127,6 @@ class ConfusionMatrix(object):
     def per_class(self):
         return (self.matrix / (self.matrix.sum(1, keepdim=True) + 1e-5)).cpu()
 
-
 if __name__ == '__main__':
     dataset = DenseSuperTuxDataset('dense_data/train', transform=dense_transforms.Compose(
         [dense_transforms.RandomHorizontalFlip(), dense_transforms.ToTensor()]))
@@ -154,3 +147,9 @@ if __name__ == '__main__':
     for im, lbl in dataset:
         c += np.bincount(lbl.view(-1), minlength=len(DENSE_LABEL_NAMES))
     print(100 * c / np.sum(c))
+
+    
+def accuracy(outputs, labels):
+    outputs_idx = outputs.max(1)[1].type_as(labels)
+    return outputs_idx.eq(labels).float().mean()
+
