@@ -37,7 +37,7 @@ def train(args):
     optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate, weight_decay = weight_decay)
     loss = torch.nn.CrossEntropyLoss()
 
-    train_data = load_dense_data('dense_data/valid', batch_size=batch_size, transform=dense_transforms.Compose([dense_transforms.RandomHorizontalFlip(), dense_transforms.ColorJitter(), dense_transforms.ToTensor()]))
+    train_data = load_dense_data('dense_data/valid', batch_size=batch_size)
     valid_data = load_dense_data('dense_data/train', batch_size=batch_size)
 
     global_step = 0
@@ -62,9 +62,10 @@ def train(args):
             loss_val.backward()
             optimizer.step()
             global_step += 1
-        #avg_acc = torch.cat(cmTrain.global_accuracy(), 0).detach().cpu().numpy()
+        avg_acc = ConfusionMatrix.global_accuracy.__get__(cmTrain)
+        class_acc = ConfusionMatrix.class_accuracy.__get__(cmTrain)
 
-        #iou=torch.cat(cmTrain.iou(), 0).detach().cpu().numpy()
+        iou=ConfusionMatrix.iou.__get__(cmTrain)
 
         if train_logger:
             train_logger.add_scalar('accuracy', avg_acc, global_step)
@@ -75,13 +76,15 @@ def train(args):
             img, label = img.to(device), label.to(device)
             acc_vals.append(accuracy(model(img), label).detach().cpu().numpy())
             cmVal.add(logit.argmax(1), label)
-        #avg_vacc = torch.cat(cmVal.global_accuracy(), 0).detach().cpu().numpy()
+        avg_vacc = ConfusionMatrix.global_accuracy.__get__(cmVal)
+        class_vacc = ConfusionMatrix.class_accuracy.__get__(cmVal)
 
         if valid_logger:
             valid_logger.add_scalar('accuracy', avg_vacc, global_step)
 
         if valid_logger is None or train_logger is None:
-            print('epoch %-3d \t acc = %0.3f \t val acc = %0.3f iou = %0.3f' % (epoch, epoch, epoch, epoch))
+            print('epoch %-3d \t acc = %0.3f \t val acc = %0.3f iou = %0.3f' % (epoch, avg_acc, avg_vacc, iou))
+            print('epoch %-3d \t class acc = %string \t val class acc = %string' % (epoch, str(class_acc), str(class_vacc)))
     save_model(model)
 
 
@@ -93,11 +96,12 @@ if __name__ == '__main__':
 
     parser.add_argument('--log_dir')
     # Put custom arguments here
-    parser.add_argument('-n', '--num_epoch', type=int, default=15)
+    parser.add_argument('-n', '--num_epoch', type=int, default=2)
     parser.add_argument('-lr', '--learning_rate', type=float, default=1e-3)
     parser.add_argument('-c', '--continue_training', action='store_true')
-    parser.add_argument('-b', '--batch_size', type=int, default=56)
+    parser.add_argument('-b', '--batch_size', type=int, default=128)
     parser.add_argument('-wd', '--weight_decay', type=float, default=1e-5)
 
     args = parser.parse_args()
     train(args)
+
