@@ -24,6 +24,7 @@ class SuperTuxDataset(Dataset):
         from os import path
         self.data = []
         self.transform = transform
+        to_tensor = transforms.ToTensor()
         with open(path.join(dataset_path, 'labels.csv'), newline='') as f:
             reader = csv.reader(f)
             for fname, label, _ in reader:
