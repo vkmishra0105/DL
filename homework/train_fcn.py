@@ -6,6 +6,7 @@ from .utils import load_dense_data, DENSE_CLASS_DISTRIBUTION, ConfusionMatrix, a
 from . import dense_transforms
 import torch.utils.tensorboard as tb
 
+
 def train(args):
     from os import path
     model = FCN()
@@ -36,7 +37,7 @@ def train(args):
     optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate, weight_decay = weight_decay)
     loss = torch.nn.CrossEntropyLoss()
 
-    train_data = load_dense_data('dense_data/valid', batch_size=batch_size)
+    train_data = load_dense_data('dense_data/valid', batch_size=batch_size, transforms=dense_transforms.Compose([dense_transforms.RandomHorizontalFlip(), dense_transforms.ColorJitter(), dense_transforms.ToTensor()]))
     valid_data = load_dense_data('dense_data/train', batch_size=batch_size)
 
     global_step = 0
@@ -84,6 +85,7 @@ def train(args):
     save_model(model)
 
 
+
 if __name__ == '__main__':
     import argparse
 
@@ -91,11 +93,13 @@ if __name__ == '__main__':
 
     parser.add_argument('--log_dir')
     # Put custom arguments here
-    parser.add_argument('-n', '--num_epoch', type=int, default=12)
-    parser.add_argument('-lr', '--learning_rate', type=float, default=5e-3)
+    parser.add_argument('-n', '--num_epoch', type=int, default=10)
+    parser.add_argument('-lr', '--learning_rate', type=float, default=1e-3)
     parser.add_argument('-c', '--continue_training', action='store_true')
     parser.add_argument('-b', '--batch_size', type=int, default=32)
     parser.add_argument('-wd', '--weight_decay', type=float, default=1e-4)
 
     args = parser.parse_args()
     train(args)
+
+
