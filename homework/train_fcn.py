@@ -6,7 +6,6 @@ from .utils import load_dense_data, DENSE_CLASS_DISTRIBUTION, ConfusionMatrix, a
 from . import dense_transforms
 import torch.utils.tensorboard as tb
 
-
 def train(args):
     from os import path
     model = FCN()
@@ -62,7 +61,7 @@ def train(args):
             loss_val.backward()
             optimizer.step()
             global_step += 1
-            avg_acc = torch.cat(cmTrain.global_accuracy(), 0).detach().cpu().numpy()
+        #avg_acc = torch.cat(cmTrain.global_accuracy(), 0).detach().cpu().numpy()
 
         #iou=torch.cat(cmTrain.iou(), 0).detach().cpu().numpy()
 
@@ -75,7 +74,7 @@ def train(args):
             img, label = img.to(device), label.to(device)
             acc_vals.append(accuracy(model(img), label).detach().cpu().numpy())
             cmVal.add(logit.argmax(1), label)
-            avg_vacc = torch.cat(cmVal.global_accuracy(), 0).detach().cpu().numpy()
+        #avg_vacc = torch.cat(cmVal.global_accuracy(), 0).detach().cpu().numpy()
 
         if valid_logger:
             valid_logger.add_scalar('accuracy', avg_vacc, global_step)
@@ -85,7 +84,6 @@ def train(args):
     save_model(model)
 
 
-
 if __name__ == '__main__':
     import argparse
 
@@ -93,8 +91,8 @@ if __name__ == '__main__':
 
     parser.add_argument('--log_dir')
     # Put custom arguments here
-    parser.add_argument('-n', '--num_epoch', type=int, default=10)
-    parser.add_argument('-lr', '--learning_rate', type=float, default=1e-3)
+    parser.add_argument('-n', '--num_epoch', type=int, default=12)
+    parser.add_argument('-lr', '--learning_rate', type=float, default=5e-3)
     parser.add_argument('-c', '--continue_training', action='store_true')
     parser.add_argument('-b', '--batch_size', type=int, default=32)
     parser.add_argument('-wd', '--weight_decay', type=float, default=1e-4)
