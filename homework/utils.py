@@ -13,26 +13,25 @@ DENSE_CLASS_DISTRIBUTION = [0.52683655, 0.02929112, 0.4352989, 0.0044619, 0.0041
 
 
 class SuperTuxDataset(Dataset):
-    def __init__(self, dataset_path, transform=transforms.ToTensor()):
+    def __init__(self, dataset_path):
         """
         Your code here
-        Hint: Use your solution (or the master solution) to HW1 / HW2
-        Hint: If you're loading (and storing) PIL images here, make sure to call image.load(),
-              to avoid an OS error for too many open files.
+        Hint: Use the python csv library to parse labels.csv
         """
         import csv
         from os import path
         self.data = []
-        self.transform = transform
         to_tensor = transforms.ToTensor()
         with open(path.join(dataset_path, 'labels.csv'), newline='') as f:
             reader = csv.reader(f)
             for fname, label, _ in reader:
                 if label in LABEL_NAMES:
                     image = Image.open(path.join(dataset_path, fname))
-                    image.load()
+                    #if('train' in dataset_path):
+                    #  image.transforms.RandomHorizontalFlip(p=0.25)
+                    #  image.transforms.RandomGrayscale(p=0.2)
                     label_id = LABEL_NAMES.index(label)
-                    self.data.append((image, label_id))
+                    self.data.append((to_tensor(image), label_id))
 
     def __len__(self):
         """
@@ -43,12 +42,9 @@ class SuperTuxDataset(Dataset):
     def __getitem__(self, idx):
         """
         Your code here
-        Hint: Make sure to apply the transform here, if you use any randomized transforms.
-              This ensures that a different random transform is used every time
+        return a tuple: img, label
         """
-        # return self.data[idx]
-        img, lbl = self.data[idx]
-        return self.transform(img), lbl
+        return self.data[idx]
 
 
 class DenseSuperTuxDataset(Dataset):
@@ -81,13 +77,13 @@ def load_dense_data(dataset_path, num_workers=0, batch_size=32, **kwargs):
     dataset = DenseSuperTuxDataset(dataset_path, **kwargs)
     return DataLoader(dataset, num_workers=num_workers, batch_size=batch_size, shuffle=True, drop_last=True)
 
-def accuracy(outputs, labels):
-    outputs_idx = outputs.max(1)[1].type_as(labels)
-    return outputs_idx.eq(labels).float().mean()
 
 def _one_hot(x, n):
     return (x.view(-1, 1) == torch.arange(n, dtype=x.dtype, device=x.device)).int()
 
+def accuracy(outputs, labels):
+    outputs_idx = outputs.max(1)[1].type_as(labels)
+    return outputs_idx.eq(labels).float().mean()
 
 class ConfusionMatrix(object):
     def _make(self, preds, labels):
@@ -135,7 +131,7 @@ class ConfusionMatrix(object):
 
     @property
     def per_class(self):
-        return (self.matrix / (self.matrix.sum(1, keepdim=True) + 1e-5)).cpu()
+        return self.matrix / (self.matrix.sum(1, keepdims=True) + 1e-5)
 
 
 if __name__ == '__main__':
@@ -159,7 +155,3 @@ if __name__ == '__main__':
         c += np.bincount(lbl.view(-1), minlength=len(DENSE_LABEL_NAMES))
     print(100 * c / np.sum(c))
 
-
-def accuracy(outputs, labels):
-    outputs_idx = outputs.max(1)[1].type_as(labels)
-    return outputs_idx.eq(labels).float().mean()
