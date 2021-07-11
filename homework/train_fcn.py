@@ -37,7 +37,7 @@ def train(args):
     optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate, weight_decay = weight_decay)
     loss = torch.nn.CrossEntropyLoss()
 
-    train_data = load_dense_data('dense_data/valid', batch_size=batch_size)
+    train_data = load_dense_data('dense_data/valid', batch_size=batch_size, transform=dense_transforms.Compose([dense_transforms.RandomHorizontalFlip(), dense_transforms.ColorJitter(), dense_transforms.ToTensor()]))
     valid_data = load_dense_data('dense_data/train', batch_size=batch_size)
 
     global_step = 0
