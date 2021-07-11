@@ -97,7 +97,7 @@ if __name__ == '__main__':
     parser.add_argument('-lr', '--learning_rate', type=float, default=1e-3)
     parser.add_argument('-c', '--continue_training', action='store_true')
     parser.add_argument('-b', '--batch_size', type=int, default=56)
-    parser.add_argument('-wd', '--weight_decay', type=float, default=1e-4)
+    parser.add_argument('-wd', '--weight_decay', type=float, default=1e-5)
 
     args = parser.parse_args()
     train(args)
