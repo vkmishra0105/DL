@@ -66,7 +66,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--log_dir')
-    # Put custom arguments here
+    # custom arguments here
 
     args = parser.parse_args()
     train(args)
